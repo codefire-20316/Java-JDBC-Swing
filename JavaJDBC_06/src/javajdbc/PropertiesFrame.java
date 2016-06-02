@@ -5,6 +5,7 @@
  */
 package javajdbc;
 
+import java.awt.Frame;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,23 +13,22 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import sun.awt.ModalityEvent;
+import javax.swing.JDialog;
 
 /**
  *
  * @author human
  */
-public class PropertiesFrame extends JFrame {
+public class PropertiesFrame extends JDialog {
     
     private Properties dbprops;
 
-    /**
-     * Creates new form PropertiesFrame
-     */
-    public PropertiesFrame() {
+    public PropertiesFrame(Frame owner) {
+        super(owner, true);
+        
         initComponents();
+        
+        setLocationRelativeTo(owner);
         
         dbprops = new Properties();
         
@@ -45,7 +45,6 @@ public class PropertiesFrame extends JFrame {
         jtfHostname.setText(hostname);
         jtfUsername.setText(username);
         jpfPassword.setText(password);
-        
     }
 
     /**

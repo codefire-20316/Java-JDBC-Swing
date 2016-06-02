@@ -5,6 +5,7 @@
  */
 package javajdbc;
 
+import java.awt.Dialog;
 import java.awt.Window;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -206,15 +207,14 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jmiPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiPropertiesActionPerformed
         
-        for (Window window : getWindows()) {
-            if (window instanceof PropertiesFrame) {
-                window.setVisible(true);
-                return;
-            }
-        }
+//        for (Window window : getWindows()) {
+//            if (window instanceof PropertiesFrame) {
+//                window.setVisible(true);
+//                return;
+//            }
+//        }
         
-        PropertiesFrame propertiesFrame = new PropertiesFrame();
-        propertiesFrame.setLocationRelativeTo(this);
+        PropertiesFrame propertiesFrame = new PropertiesFrame(this);
         propertiesFrame.setVisible(true);
         
     }//GEN-LAST:event_jmiPropertiesActionPerformed
