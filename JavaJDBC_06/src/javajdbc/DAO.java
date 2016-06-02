@@ -8,11 +8,12 @@ package javajdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
@@ -22,7 +23,7 @@ import javax.swing.table.DefaultTableModel;
  * @author human
  */
 public class DAO {
-    
+
     private String hostname;
     private String username;
     private String password;
@@ -32,18 +33,47 @@ public class DAO {
         this.username = username;
         this.password = password;
     }
-    
+
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(String.format("jdbc:mysql://%s", hostname), username, password);
     }
-    
+
+    /**
+     * Getting database list.
+     *
+     * @return database list.
+     */
     public List<String> getDatabases() {
-        List<String> databaseList = new  ArrayList<>();
-        
+        List<String> databaseList = new ArrayList<>();
+
         try (Connection conn = getConnection()) {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SHOW DATABASES");
-            
+
+            while (rs.next()) {
+                String databaseName = rs.getString(1);
+                databaseList.add(databaseName);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return databaseList;
+    }
+
+    /**
+     * Getting tables list from passed database.
+     *
+     * @param database database for selection.
+     * @return tables list.
+     */
+    public List<String> getTables(String database) {
+        List<String> databaseList = new ArrayList<>();
+
+        try (Connection conn = getConnection()) {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(String.format("SHOW TABLES FROM `%s`", database));
+
             while (rs.next()) {
                 String tableName = rs.getString(1);
                 databaseList.add(tableName);
@@ -51,13 +81,42 @@ public class DAO {
         } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return databaseList;
     }
 
     public DefaultTableModel getTableDataModel(String databaseName, String tableName) {
+        Vector<String> columnNames = new Vector<>();
+        Vector<Vector<Object>> data = new Vector<>();
+
+        try (Connection conn = getConnection()) {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM `%s`.`%s`", databaseName, tableName));
+            ResultSetMetaData metaData = rs.getMetaData();
+
+            int columnCount = metaData.getColumnCount();
+            
+            for (int i = 1; i <= columnCount; i++) {
+                String columnName = metaData.getColumnName(i);
+                columnNames.add(columnName);
+            }
+
+            while (rs.next()) {
+                Vector<Object> row = new Vector<>();
+                
+                for (int i = 1; i <= columnCount; i++) {
+                    row.add(rs.getObject(i));
+                }
+                
+                data.add(row);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        DefaultTableModel dtm = new DefaultTableModel(data, columnNames);
         // TODO: Create table model by database data from resultset.
-        return null;
+        return dtm;
     }
-    
+
 }
