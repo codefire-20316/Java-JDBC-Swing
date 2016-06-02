@@ -5,6 +5,7 @@
  */
 package javajdbc;
 
+import java.awt.Window;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -28,6 +30,10 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();
+        
+        
+        // Center screen HACK
+        setLocationRelativeTo(null);
         
         Properties dbprops = new Properties();
 
@@ -65,10 +71,15 @@ public class MainFrame extends javax.swing.JFrame {
         jlTables = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         jtTableData = new javax.swing.JTable();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jmFile = new javax.swing.JMenu();
+        jmiProperties = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        jmiExit = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jbShowDatabase.setText("SHOW DATABASE");
+        jbShowDatabase.setText("SHOW TABLES");
         jbShowDatabase.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbShowDatabaseActionPerformed(evt);
@@ -79,6 +90,8 @@ public class MainFrame extends javax.swing.JFrame {
 
         jSplitPane1.setDividerLocation(180);
 
+        jlTables.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jlTables.setVisibleRowCount(-1);
         jlTables.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jlTablesMouseClicked(evt);
@@ -91,6 +104,31 @@ public class MainFrame extends javax.swing.JFrame {
         jScrollPane2.setViewportView(jtTableData);
 
         jSplitPane1.setRightComponent(jScrollPane2);
+
+        jmFile.setText("File");
+
+        jmiProperties.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        jmiProperties.setText("Properties");
+        jmiProperties.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmiPropertiesActionPerformed(evt);
+            }
+        });
+        jmFile.add(jmiProperties);
+        jmFile.add(jSeparator1);
+
+        jmiExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
+        jmiExit.setText("Exit");
+        jmiExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmiExitActionPerformed(evt);
+            }
+        });
+        jmFile.add(jmiExit);
+
+        jMenuBar1.add(jmFile);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -117,7 +155,7 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jcbDatabases, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
+                .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -127,6 +165,19 @@ public class MainFrame extends javax.swing.JFrame {
     private void jbShowDatabaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbShowDatabaseActionPerformed
         
         // TODO: Fill JList with tables list from selected database.
+        
+        DefaultListModel dlm = new DefaultListModel();
+        
+        if (jcbDatabases.getSelectedIndex() >= 0) {
+            String databaseName = jcbDatabases.getSelectedItem().toString();
+            List<String> tablesList = dao.getTables(databaseName);
+            
+            for (String tableName : tablesList) {
+                dlm.addElement(tableName);
+            }
+        }
+        
+        jlTables.setModel(dlm);
         
     }//GEN-LAST:event_jbShowDatabaseActionPerformed
 
@@ -147,12 +198,34 @@ public class MainFrame extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jlTablesMouseClicked
 
+    private void jmiExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiExitActionPerformed
+        
+        dispose();
+        
+    }//GEN-LAST:event_jmiExitActionPerformed
+
+    private void jmiPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiPropertiesActionPerformed
+        
+        for (Window window : getWindows()) {
+            if (window instanceof PropertiesFrame) {
+                window.setVisible(true);
+                return;
+            }
+        }
+        
+        PropertiesFrame propertiesFrame = new PropertiesFrame();
+        propertiesFrame.setLocationRelativeTo(this);
+        propertiesFrame.setVisible(true);
+        
+    }//GEN-LAST:event_jmiPropertiesActionPerformed
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new MainFrame().setVisible(true);
             }
@@ -161,12 +234,17 @@ public class MainFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JButton jbShowDatabase;
     private javax.swing.JComboBox<String> jcbDatabases;
     private javax.swing.JList<String> jlTables;
+    private javax.swing.JMenu jmFile;
+    private javax.swing.JMenuItem jmiExit;
+    private javax.swing.JMenuItem jmiProperties;
     private javax.swing.JTable jtTableData;
     // End of variables declaration//GEN-END:variables
 }
