@@ -39,7 +39,7 @@ public class PropertiesFrame extends JDialog {
         }
 
         String hostname = dbprops.getProperty("hostname");
-        String username = dbprops.getProperty("user");
+        String username = dbprops.getProperty("username");
         String password = dbprops.getProperty("password");
         
         jtfHostname.setText(hostname);

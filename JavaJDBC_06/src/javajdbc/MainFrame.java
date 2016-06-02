@@ -24,6 +24,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class MainFrame extends javax.swing.JFrame {
 
+    private Properties dbprops;
     private DAO dao;
     
     /**
@@ -32,12 +33,15 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
         
-        
         // Center screen HACK
         setLocationRelativeTo(null);
         
-        Properties dbprops = new Properties();
+        loadProperties();
+    }
 
+    private void loadProperties() {
+        dbprops = new Properties();
+        
         try (FileInputStream fis = new FileInputStream("db.properties")) {
             dbprops.load(fis);
         } catch (IOException ex) {
@@ -45,7 +49,7 @@ public class MainFrame extends javax.swing.JFrame {
         }
 
         String hostname = dbprops.getProperty("hostname");
-        String username = dbprops.getProperty("user");
+        String username = dbprops.getProperty("username");
         String password = dbprops.getProperty("password");
         
         dao = new DAO(hostname, username, password);
@@ -102,6 +106,8 @@ public class MainFrame extends javax.swing.JFrame {
 
         jSplitPane1.setLeftComponent(jScrollPane1);
 
+        jtTableData.setAutoCreateRowSorter(true);
+        jtTableData.setColumnSelectionAllowed(true);
         jScrollPane2.setViewportView(jtTableData);
 
         jSplitPane1.setRightComponent(jScrollPane2);
@@ -138,7 +144,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 758, Short.MAX_VALUE)
+                    .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 809, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -216,6 +222,8 @@ public class MainFrame extends javax.swing.JFrame {
         
         PropertiesFrame propertiesFrame = new PropertiesFrame(this);
         propertiesFrame.setVisible(true);
+        
+        loadProperties();
         
     }//GEN-LAST:event_jmiPropertiesActionPerformed
 
